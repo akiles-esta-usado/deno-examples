@@ -1,0 +1,18 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		// https://docs.deno.com/runtime/reference/lsp_integration/
+		"deno.enable": true,
+		"deno.lint": true,
+		"editor.tabSize": 4,
+		"[typescript]": {
+			"editor.formatOnSave": true,
+			"editor.defaultFormatter": "denoland.vscode-deno",
+			"editor.tabSize": 4
+		}
+	}
+}

@@ -1,0 +1,37 @@
+{
+    // https://docs.deno.com/runtime/fundamentals/configuration/
+    "tasks": {
+        // https://docs.deno.com/runtime/fundamentals/configuration/#tasks
+        "dev": "deno run --watch main.ts"
+    },
+    "imports": {
+        "@std/assert": "jsr:@std/assert@1"
+    },
+    "exclude": [
+        "dist/"
+    ],
+    // https://docs.deno.com/runtime/fundamentals/linting_and_formatting/
+    "fmt": {
+        "indentWidth": 4,
+        "lineWidth": 80,
+        "useTabs": false
+    },
+    "lint": {
+        // https://lint.deno.land/
+    },
+    "lock": {
+        // https://docs.deno.com/runtime/fundamentals/configuration/#lockfile
+        // https://docs.deno.com/runtime/fundamentals/modules/#integrity-checking-and-lock-files
+        "path": "deno.lock",
+        "frozen": false
+    },
+    "compilerOptions": {
+        // https://www.typescriptlang.org/tsconfig/
+        // https://docs.deno.com/runtime/reference/ts_config_migration/
+        // https://www.typescriptlang.org/docs/handbook/compiler-options.html
+        "allowJs": true,
+        "checkJs": true,
+        // https://www.typescriptlang.org/tsconfig/#strict
+        "strict": true
+    }
+}

@@ -1,0 +1,7 @@
+{
+    "tasks": {
+        // https://docs.deno.com/runtime/fundamentals/configuration/#tasks
+        "fetch": "deno run --allow-net fetch_test.ts",
+        "streams": "deno run --allow-net --allow-write --allow-read streams_test.ts"
+    }
+}

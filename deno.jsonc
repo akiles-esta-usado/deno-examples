@@ -14,7 +14,8 @@
     "fmt": {
         "indentWidth": 4,
         "lineWidth": 80,
-        "useTabs": false
+        "useTabs": false,
+        "semiColons": true
     },
     "lint": {
         // https://lint.deno.land/
@@ -29,7 +30,6 @@
         // https://www.typescriptlang.org/tsconfig/
         // https://docs.deno.com/runtime/reference/ts_config_migration/
         // https://www.typescriptlang.org/docs/handbook/compiler-options.html
-        "allowJs": true,
         "checkJs": true,
         // https://www.typescriptlang.org/tsconfig/#strict
         "strict": true

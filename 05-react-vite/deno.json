@@ -1,0 +1,12 @@
+{
+  "imports": {
+    "@oak/oak": "jsr:@oak/oak@^17.1.3",
+    "@tajpouria/cors": "jsr:@tajpouria/cors@^1.2.1"
+  },
+  "tasks": {
+    "dev": "deno task dev:api & deno task dev:vite",
+    "dev:api": "deno run --allow-env --allow-net --allow-read api/main.ts",
+    "dev:vite": "deno run -A npm:vite",
+    "serve": "deno task build & deno task dev:api"
+  }
+}

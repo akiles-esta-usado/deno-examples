@@ -1,0 +1,16 @@
+meta {
+  name: get_horses
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{URL}}/horse
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+  res.body.token: isUndefined
+}

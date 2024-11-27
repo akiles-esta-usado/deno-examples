@@ -1,0 +1,20 @@
+meta {
+  name: get_horse
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{URL}}/horse/{{ID}}
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  ID: 1
+}
+
+assert {
+  res.status: eq 200
+  res.body: isDefined
+}

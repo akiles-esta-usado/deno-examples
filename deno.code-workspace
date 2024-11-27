@@ -4,14 +4,8 @@
 			"path": "."
 		},
 		// {
-		// 	"path": "05-react-vite"
+		// 	"path": "08-fireship-horses"
 		// }
-		// {
-		// 	"path": "06-nextjs"
-		// }
-		{
-			"path": "07-vuejs"
-		}
 	],
 	"settings": {
 		// https://docs.deno.com/runtime/reference/lsp_integration/

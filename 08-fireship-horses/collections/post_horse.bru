@@ -1,0 +1,22 @@
+meta {
+  name: post_horse
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{URL}}/horse
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name": "billy bob",
+    "age": 5
+  }
+}
+
+assert {
+  res.status: eq 201
+}

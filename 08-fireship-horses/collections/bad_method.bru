@@ -1,0 +1,15 @@
+meta {
+  name: bad_method
+  type: http
+  seq: 2
+}
+
+put {
+  url: {{URL}}/horse
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 405
+}

@@ -1,7 +1,10 @@
-function greet(name: string): string {
+export function greet(name: string): string {
   return `Hello, ${name}`;
 }
 
-console.log(greet("World"));
+if (import.meta.main) {
+  console.log(greet("World"));
 
-console.log(Deno.args);
+  // Test arguments
+  console.log(Deno.args);
+}

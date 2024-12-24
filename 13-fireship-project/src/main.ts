@@ -1,39 +1,38 @@
-import { serveDir } from "@std/http";
+import { getShortLink } from "./db.ts";
+import { generateShortCode, storeShortLink } from "./db.ts";
+import { Router } from "./router.ts";
 
-/**
- * No se crea una lista de rutas, sino que se generan patrones y en el handler
- * se gestiona la lógica.
- *
- * Seguramente la perspectiva anterior también era complicada, o podía llevar a
- * confusiones
- *
- * Acá es todo explícito y secuencial.
- */
-const userPagePattern = new URLPattern({ pathname: "/users/:id" });
-const staticPathPattern = new URLPattern({ pathname: "/static/*" });
+const app = new Router();
 
-/**
- * A diferencia del otro código, no se define un defaultHandler, sino que
- * se anota explícitamente
- */
+app.get("/", () => new Response("Hi Mom!"));
+app.post("/health-check", () => new Response("It's ALIVE!"));
+
+app.post("/links", async (req) => {
+  // return new Response(JSON.stringify(await req.json()));
+  const { longUrl } = await req.json();
+  const shortCode = await generateShortCode(longUrl);
+  await storeShortLink(longUrl, shortCode, "testUser");
+
+  return new Response("Success", {
+    status: 201,
+  });
+});
+
+app.get("/links/:shortCode", async (req, params, info) => {
+  const shortCode = params?.pathname.groups.shortCode;
+
+  const data = await getShortLink(shortCode!);
+
+  return new Response(JSON.stringify(data), {
+    status: 201,
+    headers: {
+      "content-type": "application/json",
+    },
+  });
+});
+
 export default {
   fetch(req) {
-    const url = new URL(req.url);
-
-    if (url.pathname === "/") {
-      return new Response("Home page");
-    }
-
-    const userPageMatch = userPagePattern.exec(url);
-    if (userPageMatch) {
-      return new Response(userPageMatch.pathname.groups.id);
-    }
-
-    if (staticPathPattern.test(url)) {
-      return serveDir(req);
-    }
-
-    // equivale a defaultHandler
-    return new Response("Not found", { status: 404 });
+    return app.handler()(req);
   },
 } satisfies Deno.ServeDefaultExport;

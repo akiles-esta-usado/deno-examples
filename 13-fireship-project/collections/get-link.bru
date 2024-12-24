@@ -1,0 +1,21 @@
+meta {
+  name: get-link
+  type: http
+  seq: 3
+}
+
+get {
+  url: http://localhost:8000/links/:id
+  body: json
+  auth: none
+}
+
+params:path {
+  id: fVTtH0dLJUo
+}
+
+body:json {
+  {
+    "longUrl": "https://fireship.io"
+  }
+}

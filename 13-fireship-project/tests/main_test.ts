@@ -1,5 +1,36 @@
-import { assertEquals } from "@std/assert";
+import { assertEquals, assertNotEquals, assertRejects } from "@std/assert";
+import { delay } from "jsr:@std/async/delay";
 import server from "../src/main.ts";
+
+import { generateShortCode } from "../src/db.ts";
+
+Deno.test("URL Shortener", async (t) => {
+  await t.step("should generate a short code from a valid url", async () => {
+    const longUrl = "http://www.example.com/some/long/path";
+    const shortCode = await generateShortCode(longUrl);
+
+    assertEquals(typeof shortCode, "string");
+    assertEquals(shortCode.length, 11);
+  });
+
+  await t.step("should be unique for each timestamp", async () => {
+    const longUrl = "http://www.example.com";
+
+    const a = await generateShortCode(longUrl);
+    await delay(5);
+    const b = await generateShortCode(longUrl);
+
+    assertNotEquals(a, b);
+  });
+
+  await t.step("should error on bad URL", async () => {
+    const longUrl = "not a valid url";
+
+    assertRejects(async () => {
+      await generateShortCode(longUrl);
+    });
+  });
+});
 
 Deno.test(async function serverFetch() {
   const req = new Request("https://deno.land");

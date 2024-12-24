@@ -1,0 +1,11 @@
+{
+  "tasks": {
+    // "dev": "deno serve --watch -A --no-prompt src/main.ts",
+    "dev": "deno serve --watch -A --no-prompt src/main_fireship.ts",
+    "test": "deno test tests/"
+  },
+  "imports": {
+    "@std/assert": "jsr:@std/assert@1",
+    "@std/http": "jsr:@std/http@1"
+  }
+}

@@ -2,9 +2,25 @@ import { getShortLink } from "./db.ts";
 import { generateShortCode, storeShortLink } from "./db.ts";
 import { Router } from "./router.ts";
 
+/**
+ * render converts jsx to html
+ */
+import { render } from "npm:preact-render-to-string";
+import { HomePage } from "./ui.tsx";
+
 const app = new Router();
 
-app.get("/", () => new Response("Hi Mom!"));
+app.get("/", () => {
+  return new Response(
+    render(HomePage({ user: null })),
+    {
+      status: 200,
+      headers: {
+        "content-type": "text/html",
+      },
+    },
+  );
+});
 app.post("/health-check", () => new Response("It's ALIVE!"));
 
 app.post("/links", async (req) => {

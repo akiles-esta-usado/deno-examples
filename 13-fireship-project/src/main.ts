@@ -1,4 +1,4 @@
-import { getShortLink } from "./db.ts";
+import { getShortLink, getUserLinks } from "./db.ts";
 import { generateShortCode, storeShortLink } from "./db.ts";
 import { Router } from "./router.ts";
 
@@ -6,7 +6,12 @@ import { Router } from "./router.ts";
  * render converts jsx to html
  */
 import { render } from "npm:preact-render-to-string";
-import { CreateShortlinkPage, HomePage, UnauthorizedPage } from "./ui.tsx";
+import {
+  CreateShortlinkPage,
+  HomePage,
+  LinksPage,
+  UnauthorizedPage,
+} from "./ui.tsx";
 
 /**
  * Oauth 2.0 routes
@@ -48,6 +53,19 @@ function unauthorizedResponse() {
  * /links
  */
 
+app.get("/links", async () => {
+  if (!app.currentUser) return unauthorizedResponse();
+
+  const shortLinks = await getUserLinks(app.currentUser.login);
+
+  return new Response(render(LinksPage({ shortLinkList: shortLinks })), {
+    status: 200,
+    headers: {
+      "content-type": "text/html",
+    },
+  });
+});
+
 // app.post("/links", async (req) => {
 //   // return new Response(JSON.stringify(await req.json()));
 //   const { longUrl } = await req.json();
@@ -70,6 +88,8 @@ app.post("/links", async (req) => {
   }
 
   const shortCode = await generateShortCode(longUrl);
+  console.log("shortCode:", shortCode);
+
   await storeShortLink(longUrl, shortCode, app.currentUser.login);
 
   return new Response(null, {

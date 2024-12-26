@@ -48,6 +48,11 @@ export type ShortLink = {
   lastClickEvent?: string;
 };
 
+/**
+ * Esta función almacena dos registros:
+ * - Vínculo entre shortcode y los datos tipo ShortLink
+ * - Vínculo entre un usuario y su shortCode
+ */
 export async function storeShortLink(
   longUrl: string,
   shortCode: string,
@@ -64,7 +69,23 @@ export async function storeShortLink(
   };
 
   // KvKey can be any object??
-  const res = await kv.set(shortLinkKey, data);
+  // const res = await kv.set(shortLinkKey, data);
+
+  /**
+   * Identificador de usuario
+   *
+   * Requiere ingresar un segundo par llave-valor que vincule
+   * al usuario y el shortcode
+   *
+   * Se necesita que ambos pares llave-valor se almacenen de forma
+   * atómica
+   */
+
+  const userKey = [userId, shortCode];
+  const res = await kv.atomic()
+    .set(shortLinkKey, data)
+    .set(userKey, shortCode)
+    .commit();
 
   if (!res.ok) {
     // Handle
@@ -73,24 +94,67 @@ export async function storeShortLink(
   return res;
 }
 
+/**
+ * Retorna un solo link según el shortcode
+ */
 export async function getShortLink(shortCode: string) {
   const link = await kv.get<ShortLink>(["shortlinks", shortCode]);
   return link.value;
 }
 
-// Temporary example to try it out
-// deno run -A --unstable-kv src/db.ts
-const longUrl = "https://fireship.io";
-const shortCode = await generateShortCode(longUrl);
-const userId = "test";
+/**
+ * Retorna todos los links registrados
+ *
+ * Todas las llaves tienen prefijo "shortlinks"
+ *
+ * Retornar los datos por usuario es complicado al KV ser nosql
+ * Es decir, no se puede hacer `WHERE user == app.user`
+ */
+export async function getAllLinks() {
+  // lv list retorna un lazy list iterator
+  // Se recorre con un for await o generando un arreglo
+  const list = kv.list<ShortLink>({ prefix: ["shortlinks"] });
+  const res = await Array.fromAsync(list);
+  const linkValues = res.map((v) => v.value);
+  return linkValues;
+}
 
-console.log("shortCode:", shortCode);
+/**
+ * Retorna los links generados por un usuario específico
+ *
+ * 1. Generar iterador de shortcodes por usuario, se convierten
+ *    al formato de llave de shortcode ("shortlinks", shortCode)
+ *
+ * 2. Obtener todos los registros según las llaves
+ *
+ * 3. Retorna solo los valores, no las llaves
+ */
+export async function getUserLinks(userId: string) {
+  const list = kv.list<string>({ prefix: [userId] });
+  const res = await Array.fromAsync(list);
+  const userShortLinkKeys = res.map((v) => ["shortlinks", v.value]);
 
-const res = await storeShortLink(longUrl, shortCode, userId);
-console.log("Value given by kv:", res);
+  const userRes = await kv.getMany<ShortLink[]>(userShortLinkKeys);
+  const userShortLinks = await Array.fromAsync(userRes);
 
-const linkData = await getShortLink(shortCode);
-console.log("linkData:", linkData);
+  return userShortLinks.map((v) => v.value);
+}
+
+if (import.meta.main) {
+  // Temporary example to try it out
+  // deno run -A --unstable-kv src/db.ts
+  const longUrl = "https://fireship.io";
+  const shortCode = await generateShortCode(longUrl);
+  const userId = "test";
+
+  console.log("shortCode:", shortCode);
+
+  const res = await storeShortLink(longUrl, shortCode, userId);
+  console.log("Value given by kv:", res);
+
+  const linkData = await getShortLink(shortCode);
+  console.log("linkData:", linkData);
+}
 
 /**
  * Implementación de autenticación de usuario con Github

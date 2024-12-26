@@ -1,4 +1,11 @@
 import type { ComponentChildren } from "npm:preact";
+import { GitHubUser, ShortLink } from "./db.ts";
+
+interface PageProps {
+  user?: GitHubUser;
+  shortLink?: ShortLink | null;
+  shortLinkList?: (ShortLink | null)[];
+}
 
 /**
  * Esto no es React, no hay hooks ni funcionalidades de cliente
@@ -146,7 +153,38 @@ export function HomePage({ user }: { user: any }) {
   );
 }
 
-export function LinksPage({ shortLinkList }) {
+export function LinksPage({ shortLinkList }: PageProps) {
+  return (
+    <Layout>
+      <div className="card shadow-xl">
+        <div className="card-body">
+          <h2 className="card-title text-2xl mb-6">Your Shortlinks</h2>
+          <div className="space-y-4">
+            {shortLinkList?.map((link) => (
+              <div
+                key={link.shortCode}
+                className="card bg-base-200 hover:bg-base-300 transition-colors"
+              >
+                <div className="card-body">
+                  <h3 className="card-title">
+                    <a href={`/links/${link.shortCode}`}>{link.shortCode}</a>
+                  </h3>
+                  <p className="text-base-content">
+                    {link.longUrl}
+                  </p>
+                  <div className="flex">
+                    <span>
+                      Created: {new Date(link.createdAt).toLocaleDateString()}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </Layout>
+  );
 }
 
 export function CreateShortlinkPage() {

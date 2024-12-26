@@ -1,4 +1,6 @@
 import { Handler, type Route, route } from "jsr:@std/http/unstable-route";
+import type { GitHubUser } from "./db.ts";
+import { getCurrentUser } from "./auth.ts";
 
 /**
  * Explicación de express (La inspiración de este router)
@@ -16,6 +18,11 @@ import { Handler, type Route, route } from "jsr:@std/http/unstable-route";
 export class Router {
   // El uso de # es un alias de private
   #routes: Route[] = [];
+
+  /**
+   * Router debe modificarse para seguir al usuario
+   */
+  currentUser?: GitHubUser | null;
 
   /**
    * En Express existe un método `serve`
@@ -47,6 +54,7 @@ export class Router {
       method,
       handler: async (req, params, info) => {
         try {
+          this.currentUser = await getCurrentUser(req);
           return await handler(req, params!, info!);
         } catch (error) {
           console.error("Error handling request:", error);

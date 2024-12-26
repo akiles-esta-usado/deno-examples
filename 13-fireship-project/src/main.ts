@@ -8,11 +8,33 @@ import { Router } from "./router.ts";
 import { render } from "npm:preact-render-to-string";
 import { HomePage } from "./ui.tsx";
 
+/**
+ * Oauth 2.0 routes
+ */
+import { createGitHubOAuthConfig, createHelpers } from "jsr:@deno/kv-oauth";
+import { handleGitHubCallback } from "./auth.ts";
+
 const app = new Router();
+
+/**
+ * El mismo procedimiento de auth.ts pero usando los handles signIn y singOut
+ */
+const oauthConfig = createGitHubOAuthConfig({
+  redirectUri: Deno.env.get("REDIRECT_URI"),
+});
+const { signIn, signOut } = createHelpers(oauthConfig);
+
+/**
+ * Esto sería estándar de oauth con github
+ */
+
+app.get("/oauth/signin", (req: Request) => signIn(req));
+app.get("/oauth/signout", signOut);
+app.get("/oauth/callback", handleGitHubCallback);
 
 app.get("/", () => {
   return new Response(
-    render(HomePage({ user: null })),
+    render(HomePage({ user: app.currentUser })),
     {
       status: 200,
       headers: {

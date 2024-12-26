@@ -1,9 +1,6 @@
 {
   "tasks": {
-    // "dev": "deno serve --watch -A --no-prompt src/main.ts",
-    "dev": "deno serve --watch -A --no-prompt --check src/main_fireship.ts",
-    "dev2": "deno serve --watch -A --no-prompt --unstable-kv src/main.ts",
-    "dev3": "deno run -A --unstable-kv --no-prompt src/db.ts",
+    "dev": "deno serve --env --watch -A --no-prompt --unstable-kv src/main.ts",
     "test": "deno test tests/"
   },
   "imports": {

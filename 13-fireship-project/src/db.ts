@@ -91,3 +91,44 @@ console.log("Value given by kv:", res);
 
 const linkData = await getShortLink(shortCode);
 console.log(linkData);
+
+/**
+ * Implementación de autenticación de usuario con Github
+ *
+ * Oauth 2.0 es un protocolo que permite validar identidad
+ * a través de un tercero, como GitHub, Google, Facebook.
+ *
+ * Luego de que el usuario se autentique, tendremos un
+ *
+ * Access Token: Usado para tener datos del perfil
+ * Session Id: Cookie del servidor para identificar la sesión del browser
+ *
+ * 1. Setear variables de entorno
+ * Son llaves de API para utilizar github como intermediario
+ * Con una cuenta GitHub, crear una nueva app
+ */
+
+/**
+ * User model inside the database and two methods to store and retrieve it
+ */
+export type GitHubUser = {
+  login: string;
+  avatar_url: string;
+  html_url: string;
+};
+
+/**
+ * Logged users will have a "sessionId"
+ * The sessionId should be associated with sessionData (username, avatar, etc)
+ */
+export async function storeUser(sessionId: string, userData: GitHubUser) {
+  const key = ["sessions", sessionId];
+  const res = await kv.set(key, userData);
+  return res;
+}
+
+export async function getUser(sessionId: string) {
+  const key = ["sessions", sessionId];
+  const res = await kv.get<GitHubUser>(key);
+  return res.value;
+}

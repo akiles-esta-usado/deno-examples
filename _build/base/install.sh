@@ -48,6 +48,7 @@ UTILITY_DEPS=(
 	tree
 	less
 	htop
+	gcc
 )
 
 DEPS=(

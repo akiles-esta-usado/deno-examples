@@ -1,4 +1,4 @@
-import { getShortLink, getUserLinks } from "./db.ts";
+import { getShortLink, getUserLinks, incrementClickCount } from "./db.ts";
 import { generateShortCode, storeShortLink } from "./db.ts";
 import { Router } from "./router.ts";
 
@@ -10,6 +10,8 @@ import {
   CreateShortlinkPage,
   HomePage,
   LinksPage,
+  NotFoundPage,
+  ShortlinkViewPage,
   UnauthorizedPage,
 } from "./ui.tsx";
 
@@ -112,14 +114,23 @@ app.get("/links/new", (_req) => {
 });
 
 app.get("/links/:shortCode", async (req, params, info) => {
-  const shortCode = params?.pathname.groups.shortCode;
+  const shortCode: string = params?.pathname.groups["shortCode"] || "";
+  console.log("getting shortCode: ", shortCode);
+  const shortLink = await getShortLink(shortCode);
 
-  const data = await getShortLink(shortCode!);
+  if (!shortLink) {
+    return new Response(render(NotFoundPage({ shortCode })), {
+      status: 404,
+      headers: {
+        "content-type": "text/html",
+      },
+    });
+  }
 
-  return new Response(JSON.stringify(data), {
-    status: 201,
+  return new Response(render(ShortlinkViewPage({ shortLink })), {
+    status: 200,
     headers: {
-      "content-type": "application/json",
+      "content-type": "text/html",
     },
   });
 });
@@ -139,6 +150,44 @@ app.get("/", () => {
       },
     },
   );
+});
+
+/**
+ * Es la forma común de usar el acortador
+ * app.com/shortCode
+ * Redirige al otro sitio
+ */
+app.get("/:shortCode", async (req, params, info) => {
+  const shortCode: string = params?.pathname.groups["shortCode"] || "";
+  console.log("getting shortCode: ", shortCode);
+  const shortLink = await getShortLink(shortCode);
+
+  if (!shortLink) {
+    return new Response(render(NotFoundPage({ shortCode })), {
+      status: 404,
+      headers: {
+        "content-type": "text/html",
+      },
+    });
+  }
+
+  // Obteniendo datos de analíticas
+  const ipAddress = req.headers.get("x-forward-for") ||
+    req.headers.get("cf-connecting-ip") || "Unknown";
+  const userAgent = req.headers.get("user-agent") || "Unknown";
+  const country = req.headers.get("cf-ipcountry") || "Unknown";
+  await incrementClickCount(shortCode, {
+    ipAddress,
+    userAgent,
+    country,
+  });
+
+  return new Response(null, {
+    status: 303,
+    headers: {
+      "Location": shortLink.longUrl,
+    },
+  });
 });
 
 export default {

@@ -196,3 +196,66 @@ export async function getUser(sessionId: string) {
   const res = await kv.get<GitHubUser>(key);
   return res.value;
 }
+
+type ClickAnalytics = {
+  ipAddress: string;
+  userAgent: string;
+  country: string;
+};
+
+/**
+ * Almacenando estadísticas de los shortcodes
+ *
+ * Procedimiento:
+ *
+ * 1. Obtiene el registro de shortLink
+ * 2. Crea un registro de analíticas
+ * 3. Actualiza el click counter
+ *
+ * Todo debe ocurrir en una transacción atómica
+ */
+export async function incrementClickCount(
+  shortCode: string,
+  data?: Partial<ClickAnalytics>,
+) {
+  // 1. Obtener registro de shortLink
+  const shortLinkKey = ["shortlinks", shortCode];
+  const shortLink = await kv.get(shortLinkKey);
+  const shortLinkData = shortLink.value as ShortLink;
+
+  /**
+   * 2. Crea un registro de analíticas
+   * Las analíticas se registran con cada click
+   * No se actualizan, siempre se crean registros
+   */
+  const newClickCount = shortLinkData?.clickCount + 1;
+  const analyticsKey = ["analytics", shortCode, newClickCount];
+  const analyticsData = {
+    shortCode,
+    createdAt: Date.now(),
+    ...data,
+  };
+
+  /**
+   * Transacción atómica para actualizar datos de ShortLink y Analytics
+   * check: verifica el registro para que el version timestamp de kv coincida con el actual
+   * O sino podría quedar desincronizado
+   *
+   * Qué pasa si shortLink no está sincronizado? Como se gestiona eso?
+   * Seguramente va en el Error, se debería indicar de alguna manera
+   */
+  const res = await kv.atomic()
+    .check(shortLink)
+    .set(shortLinkKey, {
+      ...shortLinkData,
+      clickCount: shortLinkData?.clickCount + 1,
+    })
+    .set(analyticsKey, analyticsData)
+    .commit();
+
+  if (!res.ok) {
+    console.error("Error recording click!");
+  }
+
+  return res;
+}

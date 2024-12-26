@@ -1,4 +1,10 @@
-import { getShortLink, getUserLinks, incrementClickCount } from "./db.ts";
+import {
+  getClickEvent,
+  getShortLink,
+  getUserLinks,
+  incrementClickCount,
+  watchShortLink,
+} from "./db.ts";
 import { generateShortCode, storeShortLink } from "./db.ts";
 import { Router } from "./router.ts";
 
@@ -20,6 +26,7 @@ import {
  */
 import { createGitHubOAuthConfig, createHelpers } from "jsr:@deno/kv-oauth";
 import { handleGitHubCallback } from "./auth.ts";
+import { serveDir } from "@std/http";
 
 const app = new Router();
 
@@ -134,6 +141,85 @@ app.get("/links/:shortCode", async (req, params, info) => {
     },
   });
 });
+
+/**
+ * Realtime paths
+ *
+ * KV ofrece una característica para ver cambios a la base de datos de manerai
+ * instantanea
+ * kv.watch
+ *
+ * La aplicación frontend escuchará un stream y actuliza la UI ante cambios
+ */
+
+app.get("/realtime/:shortCode", async (req, params, info) => {
+  if (!app.currentUser) return unauthorizedResponse();
+
+  const shortCode = params?.pathname.groups["shortCode"] || "";
+  const stream = watchShortLink(shortCode);
+
+  if (!stream) {
+    return new Response(render(NotFoundPage({ shortCode })), {
+      status: 404,
+      headers: {
+        "content-type": "text/html",
+      },
+    });
+  }
+
+  /**
+   * Toma un objeto que contiene un método start
+   * - controller: Permite agregar información al stream
+   *
+   * La iteración termina solo con el mensaje "done"
+   */
+  const body = new ReadableStream({
+    async start(controller) {
+      while (true) {
+        const { done } = await stream.read();
+        if (done) return;
+
+        const shortLink = await getShortLink(shortCode);
+        if (!shortLink) return;
+
+        const clickAnalytics = shortLink.clickCount > 0 &&
+          await getClickEvent(shortCode, shortLink.clickCount);
+
+        controller.enqueue(
+          new TextEncoder().encode(
+            `data: ${
+              JSON.stringify({
+                clickCount: shortLink.clickCount,
+                clickAnalytics,
+              })
+            }\n\n`,
+          ),
+        );
+        console.log("Stream updated");
+      }
+    },
+    cancel() {
+      stream.cancel();
+    },
+  });
+
+  /**
+   * El navegador debe mantener la conexión con el servidor
+   * Lo que permite recibir más datos del servidor
+   */
+  return new Response(body, {
+    headers: {
+      "content-type": "text/event-stream",
+      "cache-control": "no-cache",
+      "connection": "keep-alive",
+    },
+  });
+});
+
+/**
+ * Static files
+ */
+app.get("/static/*", (req) => serveDir(req));
 
 /**
  * HomePage

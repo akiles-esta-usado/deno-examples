@@ -259,3 +259,17 @@ export async function incrementClickCount(
 
   return res;
 }
+
+export function watchShortLink(shortCode: string) {
+  const shortLinkKey = ["shortlinks", shortCode];
+  return kv.watch([shortLinkKey]).getReader();
+}
+
+export async function getClickEvent(shortCode: string, clickId: number) {
+  const analytics = await kv.get<ClickAnalytics>([
+    "analytics",
+    shortCode,
+    clickId,
+  ]);
+  return analytics.value;
+}

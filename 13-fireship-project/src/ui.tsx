@@ -1,5 +1,5 @@
+import type { GitHubUser, ShortLink } from "./db.ts";
 import type { ComponentChildren } from "npm:preact";
-import { GitHubUser, ShortLink } from "./db.ts";
 
 interface PageProps {
   user?: GitHubUser;
@@ -7,9 +7,11 @@ interface PageProps {
   shortLinkList?: (ShortLink | null)[];
 }
 
-const BASE_URL = Deno.env.get("DENO_ENV") === "dev"
-  ? "http://localhost:8000"
-  : "https://not implemented";
+// const BASE_URL = Deno.env.get("DENO_ENV") === "dev"
+//   ? "http://localhost:8000"
+//   : "https://not implemented";
+
+const BASE_URL = "http://localhost:8000";
 
 /**
  * Esto no es React, no hay hooks ni funcionalidades de cliente
@@ -110,7 +112,7 @@ export function Layout({ children }: { children: ComponentChildren }) {
   );
 }
 
-export function HomePage({ user }: { user: any }) {
+export function HomePage({ user }: PageProps) {
   return (
     <Layout>
       <div className="hero min-h-[500px] bg-base-200 rounded-box">
@@ -226,6 +228,9 @@ export function CreateShortlinkPage() {
   );
 }
 
+/**
+ * This Component is updated with client-side javascript
+ */
 export function ShortlinkViewPage({ shortLink }: PageProps) {
   return (
     <Layout>
@@ -286,10 +291,19 @@ export function ShortlinkViewPage({ shortLink }: PageProps) {
             </div>
 
             <div className="card-actions justify-end mt-6">
+              <a
+                target="_blank"
+                href={`/realtime/${shortLink?.shortCode}`}
+                className="btn btn-primary"
+              >
+                View Realtime Analytics
+              </a>
             </div>
           </div>
         </div>
       </div>
+
+      <script src="/static/realtime.js"></script>
     </Layout>
   );
 }

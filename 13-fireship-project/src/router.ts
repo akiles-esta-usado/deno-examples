@@ -54,6 +54,12 @@ export class Router {
       method,
       handler: async (req, params, info) => {
         try {
+          console.log(); // Empty spage
+          console.log("// ", req.method, params?.pathname.input);
+          console.log("// params.inputs:", params?.inputs);
+          // console.log("// req:", req);
+          // console.log("// params:", params);
+          // console.log("// info:", info);
           this.currentUser = await getCurrentUser(req);
           return await handler(req, params!, info!);
         } catch (error) {

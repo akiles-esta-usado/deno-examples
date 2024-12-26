@@ -6,7 +6,7 @@ export async function generateShortCode(longUrl: string) {
     // Se valida la URL con web api
     new URL(longUrl);
   } catch (error) {
-    console.log(error);
+    console.log("Error:", error);
     throw new Error("Invalid URL provided");
   }
 
@@ -84,13 +84,13 @@ const longUrl = "https://fireship.io";
 const shortCode = await generateShortCode(longUrl);
 const userId = "test";
 
-console.log(shortCode);
+console.log("shortCode:", shortCode);
 
 const res = await storeShortLink(longUrl, shortCode, userId);
 console.log("Value given by kv:", res);
 
 const linkData = await getShortLink(shortCode);
-console.log(linkData);
+console.log("linkData:", linkData);
 
 /**
  * Implementación de autenticación de usuario con Github

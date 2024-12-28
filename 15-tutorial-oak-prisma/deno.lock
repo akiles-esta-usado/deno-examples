@@ -1,0 +1,58 @@
+{
+  "version": "4",
+  "specifiers": {
+    "npm:prisma@*": "6.1.0"
+  },
+  "npm": {
+    "@prisma/debug@6.1.0": {
+      "integrity": "sha512-0himsvcM4DGBTtvXkd2Tggv6sl2JyUYLzEGXXleFY+7Kp6rZeSS3hiTW9mwtUlXrwYbJP6pwlVNB7jYElrjWUg=="
+    },
+    "@prisma/engines-version@6.1.0-21.11f085a2012c0f4778414c8db2651556ee0ef959": {
+      "integrity": "sha512-PdJqmYM2Fd8K0weOOtQThWylwjsDlTig+8Pcg47/jszMuLL9iLIaygC3cjWJLda69siRW4STlCTMSgOjZzvKPQ=="
+    },
+    "@prisma/engines@6.1.0": {
+      "integrity": "sha512-GnYJbCiep3Vyr1P/415ReYrgJUjP79fBNc1wCo7NP6Eia0CzL2Ot9vK7Infczv3oK7JLrCcawOSAxFxNFsAERQ==",
+      "dependencies": [
+        "@prisma/debug",
+        "@prisma/engines-version",
+        "@prisma/fetch-engine",
+        "@prisma/get-platform"
+      ]
+    },
+    "@prisma/fetch-engine@6.1.0": {
+      "integrity": "sha512-asdFi7TvPlEZ8CzSZ/+Du5wZ27q6OJbRSXh+S8ISZguu+S9KtS/gP7NeXceZyb1Jv1SM1S5YfiCv+STDsG6rrg==",
+      "dependencies": [
+        "@prisma/debug",
+        "@prisma/engines-version",
+        "@prisma/get-platform"
+      ]
+    },
+    "@prisma/get-platform@6.1.0": {
+      "integrity": "sha512-ia8bNjboBoHkmKGGaWtqtlgQOhCi7+f85aOkPJKgNwWvYrT6l78KgojLekE8zMhVk0R9lWcifV0Pf8l3/15V0Q==",
+      "dependencies": [
+        "@prisma/debug"
+      ]
+    },
+    "fsevents@2.3.3": {
+      "integrity": "sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw=="
+    },
+    "prisma@6.1.0": {
+      "integrity": "sha512-aFI3Yi+ApUxkwCJJwyQSwpyzUX7YX3ihzuHNHOyv4GJg3X5tQsmRaJEnZ+ZyfHpMtnyahhmXVfbTZ+lS8ZtfKw==",
+      "dependencies": [
+        "@prisma/engines",
+        "fsevents"
+      ]
+    }
+  },
+  "workspace": {
+    "dependencies": [
+      "jsr:@std/assert@1"
+    ],
+    "packageJson": {
+      "dependencies": [
+        "npm:@prisma/client@^6.1.0",
+        "npm:prisma@^6.1.0"
+      ]
+    }
+  }
+}
